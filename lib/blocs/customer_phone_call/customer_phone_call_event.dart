@@ -16,9 +16,9 @@ class RequestRecordPermissions extends CustomerPhoneCallEvent {
 
 /// event to make a call
 class StartCallEvent extends CustomerPhoneCallEvent {
-  final String phoneNumber = "";
+  final String phoneNumber;
 
-  const StartCallEvent(String phoneNumber);
+  const StartCallEvent({required this.phoneNumber});
 
   @override
   List<Object> get props => [phoneNumber];
@@ -26,6 +26,13 @@ class StartCallEvent extends CustomerPhoneCallEvent {
 
 class StopRecordingEvent extends CustomerPhoneCallEvent {
   const StopRecordingEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class GetCallSummary extends CustomerPhoneCallEvent {
+  const GetCallSummary();
 
   @override
   List<Object> get props => [];

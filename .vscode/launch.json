@@ -4,22 +4,44 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "document_analyser_poc_new",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "document_analyser_poc_new (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "document_analyser_poc_new (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
+      {
+        "name": "document_analyser_poc_new",
+        "request": "launch",
+        "type": "dart"
+      },
+      {
+        "name": "document_analyser_poc_new (profile mode)",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "profile"
+      },
+      {
+        "name": "document_analyser_poc_new (release mode)",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "release"
+      },
+      {
+        "name": "document_analyser_poc_new (web)",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "debug",
+        "deviceId": "chrome"  // This is for launching the app in Chrome
+      },
+      {
+        "name": "document_analyser_poc_new (web in profile mode)",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "profile",
+        "deviceId": "chrome"  // Web in profile mode on Chrome
+      },
+      {
+        "name": "document_analyser_poc_new (web in release mode)",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "release",
+        "deviceId": "chrome"  // Web in release mode on Chrome
+      }
     ]
-}
+  }
+  

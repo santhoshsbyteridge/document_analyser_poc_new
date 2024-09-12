@@ -16,7 +16,7 @@ class _ActionsPopupMenuUIState extends State<ActionsPopupMenuUI> {
     if (index == 3 && title == "Call Now") {
       context
           .read<CustomerPhoneCallBloc>()
-          .add(const StartCallEvent("8826112702"));
+          .add(const StartCallEvent(phoneNumber: "8826112702"));
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (BuildContext context) => const CallCustomerPage(),
