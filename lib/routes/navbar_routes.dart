@@ -2,7 +2,6 @@ import 'package:document_analyser_poc_new/models/leads.dart';
 import 'package:document_analyser_poc_new/screens/navBar/customers/call_customer_screen.dart';
 import 'package:document_analyser_poc_new/screens/navBar/customers/customers_screen.dart';
 import 'package:document_analyser_poc_new/screens/navBar/dashboard_screen.dart';
-import 'package:document_analyser_poc_new/utils/app_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
