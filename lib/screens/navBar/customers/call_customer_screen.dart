@@ -1,20 +1,58 @@
+import 'dart:async';
 import 'package:document_analyser_poc_new/blocs/customer_phone_call/customer_phone_call_bloc.dart';
-import 'package:document_analyser_poc_new/utils/app_colors.dart';
-import 'package:document_analyser_poc_new/utils/utils.dart';
+import 'package:document_analyser_poc_new/models/leads.dart';
+import 'package:document_analyser_poc_new/utils/app_enums.dart';
+import 'package:document_analyser_poc_new/utils/app_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
 
 class CallCustomerPage extends StatefulWidget {
-  const CallCustomerPage({super.key});
+  final Leads lead;
+  const CallCustomerPage({super.key, required this.lead});
 
   @override
   State<CallCustomerPage> createState() => _CallCustomerPageState();
 }
 
 class _CallCustomerPageState extends State<CallCustomerPage> {
+  bool _isCalling = false;
+  Timer? _callTimer;
+  int _elapsedTime = 0;
+
   void stopRecordingBtnPressed() {
     context.read<CustomerPhoneCallBloc>().add(const StopRecordingEvent());
+  }
+
+  @override
+  void dispose() {
+    _callTimer?.cancel();
+    super.dispose();
+  }
+
+  void _toggleCall() {
+    setState(() {
+      _isCalling = !_isCalling;
+
+      if (_isCalling) {
+        _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            _elapsedTime++;
+          });
+        });
+      } else {
+        _callTimer?.cancel();
+
+        setState(() {
+          _elapsedTime = 0;
+        });
+      }
+    });
+  }
+
+  String _formatElapsedTime(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$secs';
   }
 
   @override
@@ -24,10 +62,11 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
     return BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
       builder: (context, state) {
         return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: deviceType == Devices.webpage
-                ? _buildUIForDesktop()
-                : _buildUIForMobile());
+          padding: const EdgeInsets.all(16.0),
+          child: deviceType == Devices.webpage
+              ? _buildUIForDesktop()
+              : _buildUIForMobile(),
+        );
       },
     );
   }
@@ -40,25 +79,55 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    // "John Doe",
+                    widget.lead.leadName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _toggleCall,
+                    icon: Icon(_isCalling ? Icons.call_end : Icons.phone),
+                    label: Text(_isCalling
+                        ? "End Call (${_formatElapsedTime(_elapsedTime)})"
+                        : "Call Now"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isCalling ? Colors.red : Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Customer Name- John Doe"),
-                        SizedBox(height: 8.0),
-                        Text("Email: johndoe@example.com"),
+                        Text("Customer Name:  ${widget.lead.leadName}"),
+                        const SizedBox(height: 8.0),
+                        Text("Email: ${widget.lead.contactInfo}"),
                       ],
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Phone: 123-456-7890"),
-                        SizedBox(height: 8.0),
-                        Text("Address: 123 Main St, City, State"),
+                        Text("Phone: ${widget.lead.contactInfo}"),
+                        const SizedBox(height: 8.0),
+                        const Text("Address: 123 Main St, City, State"),
                       ],
                     ),
                   ),
@@ -83,93 +152,106 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
             ),
           ),
           const SizedBox(height: 16.0),
-          ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.auto_mode),
-            label: const Text("Summarize Call using AI"),
-          ),
-          const SizedBox(height: 16.0),
-          const Card(
-            elevation: 4,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Call Summary"),
-                  SizedBox(height: 8.0),
-                  TextField(
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Generating call summary...',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildMainContent(),
         ],
       );
 
   Column _buildUIForMobile() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Card(
+          Card(
             elevation: 4,
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Customer Name- John Doe"),
-                      SizedBox(height: 10),
-                      Text("Email: johndoe@example.com"),
-                      SizedBox(height: 10),
-                      Text("Phone: 123-456-7890"),
-                      SizedBox(height: 10),
-                      Text("Address: 123 Main St, City, State"),
-                      SizedBox(height: 10),
-                      Text("Lead Source: XYZ"),
-                      SizedBox(height: 10),
-                      Text("Call History Updated: Yes"),
-                      SizedBox(height: 10),
-                    ],
+                  const Expanded(
+                    child: Text(
+                      "John Doe",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.auto_mode),
-            label: const Text("Summarize Call using AI"),
-          ),
-          const SizedBox(height: 16.0),
-          const Card(
-            elevation: 4,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Call Summary"),
-                  SizedBox(height: 8.0),
-                  TextField(
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Generating call summary...',
-                      border: OutlineInputBorder(),
+                  ElevatedButton.icon(
+                    onPressed: _toggleCall,
+                    icon: Icon(_isCalling ? Icons.call_end : Icons.phone),
+                    label: Text(_isCalling
+                        ? "End Call (${_formatElapsedTime(_elapsedTime)})"
+                        : "Call Now"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isCalling ? Colors.red : Colors.green,
                     ),
                   ),
                 ],
               ),
             ),
           ),
+          const SizedBox(height: 16.0),
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Customer Name: ${widget.lead.leadName}"),
+                    const SizedBox(height: 10),
+                    Text("Email: ${widget.lead.contactInfo}"),
+                    const SizedBox(height: 10),
+                    const Text("Phone: 123-456-7890"),
+                    const SizedBox(height: 10),
+                    const Text("Address: 123 Main St, City, State"),
+                    const SizedBox(height: 10),
+                    const Text("Lead Source: XYZ"),
+                    const SizedBox(height: 10),
+                    const Text("Call History Updated: Yes"),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          _buildMainContent(),
         ],
       );
+
+  Widget _buildMainContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () {},
+          icon: const Icon(Icons.auto_mode),
+          label: const Text("Summarize Call using AI"),
+        ),
+        const SizedBox(height: 16.0),
+        const Card(
+          elevation: 4,
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Call Summary"),
+                SizedBox(height: 8.0),
+                TextField(
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: 'Generating call summary...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
