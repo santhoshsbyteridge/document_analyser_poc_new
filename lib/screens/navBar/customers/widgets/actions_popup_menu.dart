@@ -1,29 +1,25 @@
 import 'package:document_analyser_poc_new/blocs/customer_phone_call/customer_phone_call_bloc.dart';
+import 'package:document_analyser_poc_new/models/leads.dart';
 import 'package:document_analyser_poc_new/screens/navBar/customers/call_customer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class ActionsPopupMenuUI extends StatefulWidget {
-  const ActionsPopupMenuUI({super.key});
+  final Leads lead;
+  const ActionsPopupMenuUI({super.key, required this.lead});
 
   @override
   State<ActionsPopupMenuUI> createState() => _ActionsPopupMenuUIState();
 }
 
 class _ActionsPopupMenuUIState extends State<ActionsPopupMenuUI> {
-  // TODO: work on navigation below
   void _onMenuItemPressed(int index, String title) {
     if (index == 3 && title == "Call Now") {
       context
           .read<CustomerPhoneCallBloc>()
           .add(const StartCallEvent(phoneNumber: "8826112702"));
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => const CallCustomerPage(),
-        ),
-      );
-
-      // context.pushNamed("call-customer");
+      context.go('/customers/${widget.lead.id}/call', extra: widget.lead);
     }
   }
 

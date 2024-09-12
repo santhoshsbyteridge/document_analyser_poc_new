@@ -30,7 +30,7 @@ class _NavBarState extends State<NavBar> {
         context.go("/dashboard");
         break;
       case 'Customers':
-        context.go("/call-customer");
+        context.go("/customers");
         break;
       case 'Policies':
         break;
@@ -38,7 +38,7 @@ class _NavBarState extends State<NavBar> {
         break;
     }
 
-     // Close the drawer if the device is mobile
+    // Close the drawer if the device is mobile
     if (AppHelpers.getDevice(context) == Devices.mobile ||
         AppHelpers.getDevice(context) == Devices.smallMobile) {
       Navigator.of(context).pop(); // Close the drawer
@@ -155,7 +155,7 @@ class _NavBarState extends State<NavBar> {
   }
 
   Icon _buildHeaderTitleUI() =>
-      Icon(Icons.person, size: 100, color: AppColors.white);
+      Icon(Icons.abc_rounded, size: 50, color: AppColors.white);
 
   Row _buildHeaderIconsListUI() {
     return Row(
