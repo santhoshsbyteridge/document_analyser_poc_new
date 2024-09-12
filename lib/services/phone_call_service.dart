@@ -1,45 +1,67 @@
-import 'dart:io';
-
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
+import 'package:document_analyser_poc_new/models/call_summary.dart';
+import 'package:document_analyser_poc_new/models/error_details.dart';
+import 'package:document_analyser_poc_new/utils/app_network_constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PhoneCallService {
-  FlutterSoundRecorder? _recorder;
-
-  PhoneCallService(FlutterSoundRecorder? recorder) {
-    _recorder = recorder;
-  }
-
   Future<void> requestPermissions() async {
     await Permission.microphone.request();
-    await Permission.storage.request();
-    await Permission.phone.request();
+    if (!kIsWeb) {
+      await Permission.storage.request();
+      await Permission.phone.request();
+    }
   }
 
-  Future<void> _startRecording() async {
-    Directory? externalDir = await getExternalStorageDirectory();
-    String recordingPath = '${externalDir?.path}/call_recording.aac';
-    /*final directory = await getApplicationDocumentsDirectory();
-    _recordingPath = '${directory.path}/call_recording.aac';*/
+  Future<void> startRecording() async {}
 
-    await _recorder?.openRecorder();
-    await _recorder?.startRecorder(
-      toFile: recordingPath,
-      codec: Codec.aacADTS,
-    );
-  }
-
-  Future<void> stopRecording() async {
-    await _recorder?.stopRecorder();
-    await _recorder?.closeRecorder();
-  }
+  Future<void> stopRecording() async {}
 
   Future<void> makeCall(String number) async {
-    bool? res = await FlutterPhoneDirectCaller.callNumber(number);
-    if (res != null && res) {
-      _startRecording();
+    if (!kIsWeb) bool? _ = await FlutterPhoneDirectCaller.callNumber(number);
+  }
+
+  Future<Either<ErrorDetails, CallSummary>> getCallSummary() async {
+    try {
+      Response response = await Dio().post(
+        "${AppNetworkConstants.BASE_URL}/phone-call/summary",
+        data: {
+          "file_url": "",
+        },
+      );
+
+      // Handle success
+      if (response.statusCode == 200) {
+        // Assuming the response contains the call summary details in JSON
+        CallSummary callSummary = CallSummary.fromJson(response.data);
+        return Right(callSummary); // Return the CallSummary wrapped in Right
+      } else {
+        // Handle non-200 status codes as errors
+        return Left(ErrorDetails(
+          errorMessage: "Failed to get call summary",
+          statusCode: response.statusCode!,
+        ));
+      }
+    } on DioException catch (e) {
+      // Handle DioError separately to extract relevant error details
+      if (e.response != null) {
+        return Left(ErrorDetails(
+          errorMessage: e.response?.data['message'] ?? 'Unknown error occurred',
+          statusCode: e.response!.statusCode!,
+        ));
+      } else {
+        return Left(ErrorDetails(
+          errorMessage: e.message!,
+        ));
+      }
+    } catch (e) {
+      // Handle other types of errors
+      return Left(ErrorDetails(
+        errorMessage: e.toString(),
+      ));
     }
   }
 }

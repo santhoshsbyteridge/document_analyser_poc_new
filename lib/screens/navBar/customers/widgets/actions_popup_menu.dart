@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class ActionsPopupMenuUI extends StatefulWidget {
-  final Leads lead; 
+  final Leads lead;
   const ActionsPopupMenuUI({super.key, required this.lead});
 
   @override
@@ -14,12 +14,11 @@ class ActionsPopupMenuUI extends StatefulWidget {
 }
 
 class _ActionsPopupMenuUIState extends State<ActionsPopupMenuUI> {
-  // TODO: work on navigation below
   void _onMenuItemPressed(int index, String title) {
     if (index == 3 && title == "Call Now") {
       context
           .read<CustomerPhoneCallBloc>()
-          .add(const StartCallEvent("8826112702"));
+          .add(const StartCallEvent(phoneNumber: "8826112702"));
       context.go('/customers/${widget.lead.id}/call', extra: widget.lead);
     }
   }
