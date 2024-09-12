@@ -4,6 +4,7 @@ import 'package:document_analyser_poc_new/models/leads.dart';
 import 'package:document_analyser_poc_new/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 
 class CallCustomerPage extends StatefulWidget {
   final Leads lead;
@@ -17,6 +18,13 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
   bool _isCalling = false;
   Timer? _callTimer;
   int _elapsedTime = 0;
+  late TextEditingController _callSummaryController;
+
+  @override
+  void initState() {
+    super.initState();
+    _callSummaryController = TextEditingController();
+  }
 
   void _getcallsummary() {
     context.read<CustomerPhoneCallBloc>().add(const GetCallSummary());
@@ -228,41 +236,67 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
         ),
         const SizedBox(height: 16.0),
         BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
-            builder: (context, state) {
-          if (state is LoadingState && state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is CallSummaryState) {
-            return Text(state.callSummary);
-          } else if (state is ErrorState) {
-            return Text(
-              'Error: ${state.error.errorMessage}',
-              style: const TextStyle(color: Colors.red),
-            );
-          } else {
-            return const Card(
-              elevation: 4,
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Call Summary"),
-                    SizedBox(height: 8.0),
-                    TextField(
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        hintText: 'Generating call summary...',
-                        border: OutlineInputBorder(),
+          builder: (context, state) {
+            if (state is LoadingState && state.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is ErrorState) {
+              return Text(
+                'Error: ${state.error.errorMessage}',
+                style: const TextStyle(color: Colors.red),
+              );
+            } else {
+              if (state is CallSummaryState) {
+                _callSummaryController.text = state.callSummary;
+              }
+              return Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Call Summary"),
+                      const SizedBox(height: 8.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _callSummaryController,
+                              maxLines: 10,
+                              decoration: InputDecoration(
+                                hintText: (state is CallSummaryState)
+                                    ? 'Call summary generated.'
+                                    : 'No summary available...',
+                                border: const OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.copy),
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(
+                                    text: _callSummaryController.text),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Copied to clipboard!'),
+                                ),
+                              );
+                            },
+                            tooltip: 'Copy to clipboard',
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }
-        }),
+              );
+            }
+          },
+        ),
       ],
     );
   }
