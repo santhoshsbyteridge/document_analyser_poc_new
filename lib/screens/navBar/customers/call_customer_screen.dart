@@ -1,23 +1,12 @@
 import 'dart:async';
 import 'package:document_analyser_poc_new/blocs/customer_phone_call/customer_phone_call_bloc.dart';
+import 'package:document_analyser_poc_new/blocs/policy/policy_bloc.dart'
+    as ranked_policy;
 import 'package:document_analyser_poc_new/models/leads.dart';
 import 'package:document_analyser_poc_new/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
-
-class Policy {
-  final String name;
-  final String description;
-  final String keyFeatures;
-  final int purchaseFeasibility; // New field
-
-  Policy(
-      {required this.name,
-      required this.description,
-      required this.keyFeatures,
-      required this.purchaseFeasibility});
-}
 
 class CallCustomerPage extends StatefulWidget {
   final Leads lead;
@@ -68,51 +57,10 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
     },
   };
 
-  final List<Policy> _policies = [
-    Policy(
-        name: "CARE Insurance Super Premium",
-        description:
-            "This comprehensive health insurance policy offers both individual and family plans...",
-        keyFeatures: """
-      • Coverage Type: Individual and family plans\n
-      • Premiums: \$300/month for individuals, \$500/month for families\n
-      • Deductibles: \$1,000 per individual, \$2,500 per family\n
-      • Copayments: \$75 for doctor visits, \$50 for specialist visits\n
-      • Coinsurance: 20% after deductible\n
-      • Network Providers: Access to a nationwide network of doctors and hospitals\n
-      • Prescription Drugs: Tiered coverage with \$10, \$30, and \$50 copays\n
-      • Preventive Services: 100% covered for annual check-ups and screenings\n
-      • Emergency Services: Covered with \$100 copay, waived if admitted\n
-      • Hospitalization: 80% covered after deductible\n
-      • Mental Health: Includes coverage for therapy and counseling sessions
-    """,
-        purchaseFeasibility: 90),
-    Policy(
-        name: "Aditya Birla Health Insurance Plus",
-        description:
-            "This comprehensive health insurance policy offers both individual and family plans...",
-        keyFeatures: """
-      • Coverage Type: Individual and family plans\n
-      • Premiums: \$200/month for individuals, \$500/month for families\n
-      • Deductibles: \$1,000 per individual, \$2,500 per family\n
-      • Copayments: \$70 for doctor visits, \$50 for specialist visits\n
-      • Coinsurance: 20% after deductible\n
-      • Network Providers: Access to a nationwide network of doctors and hospitals\n
-      • Prescription Drugs: Tiered coverage with \$10, \$30, and \$50 copays\n
-      • Preventive Services: 100% covered for annual check-ups and screenings\n
-      • Emergency Services: Covered with \$100 copay, waived if admitted\n
-      • Hospitalization: 80% covered after deductible\n
-      • Mental Health: Includes coverage for therapy and counseling sessions
-    """,
-        purchaseFeasibility: 70),
-  ];
-
-  bool _showPolicies = false;
-
-  void _generatePolicies() {
-    setState(() {
-      _showPolicies = true; // Toggle the display of policies
-    });
+  void _getRankedPolicies(String summary) {
+    context
+        .read<ranked_policy.PolicyBloc>()
+        .add(ranked_policy.FetchRankedPolicies(summary: summary));
   }
 
   @override
@@ -440,68 +388,12 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
     );
   }
 
-  // Widget _buildSuggestedPolicySection() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Card(
-  //         elevation: 4,
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(16.0),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               const Text(
-  //                 "Policy Discussion Checklist",
-  //                 style: TextStyle(
-  //                   fontSize: 18,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 16.0),
-  //               const Text(
-  //                 "Assessment",
-  //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  //               ),
-  //               // Iterate over the map to create CheckboxListTile for each item
-  //               ...checklistItems.entries.map((entry) {
-  //                 return CheckboxListTile(
-  //                   title: Text(entry.value['label']),
-  //                   value: entry.value['checked'],
-  //                   onChanged: (bool? value) {
-  //                     _updateChecklistItem(entry.key, value!);
-  //                   },
-  //                 );
-  //               }),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //       const SizedBox(height: 16.0),
-  //       ElevatedButton(
-  //         onPressed: () {
-  //           // Implement your action when "Generate Policies" is clicked
-  //         },
-  //         style: ElevatedButton.styleFrom(
-  //           backgroundColor: Colors.blue,
-  //           padding:
-  //               const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(5),
-  //           ),
-  //         ),
-  //         child: const Text("Generate Policies"),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildGeneratePoliciesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ElevatedButton.icon(
-          onPressed: _generatePolicies,
+          onPressed: () => _getRankedPolicies(_callSummaryController.text),
           label: const Text(
             "Generate Policies",
             style: TextStyle(color: Colors.white),
@@ -515,68 +407,82 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
           ),
         ),
         const SizedBox(height: 16.0),
-        if (_showPolicies)
-          Column(
-            children: _policies.map((policy) {
-              return Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Card(
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            policy.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          Text(policy.description),
-                          const SizedBox(height: 16.0),
-                          const Text(
-                            "Key Features",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          Text(policy.keyFeatures),
-                          Text(
-                            "Purchase Feasibility: ${policy.purchaseFeasibility}%",
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          ElevatedButton.icon(
-                            onPressed: _generatePolicies,
-                            label: const Text(
-                              "Proceed",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0f548c),
-                              padding: const EdgeInsets.all(20),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
+        BlocBuilder(
+          builder: (context, state) {
+            if (state is ranked_policy.ErrorState) {
+              return Text(
+                'Error: ${state.error.errorMessage}',
+                style: const TextStyle(color: Colors.red),
+              );
+            } else if (state is ranked_policy.RankedPoliciesState) {
+              return Column(
+                children: state.rankedPolicies.map((policy) {
+                  return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Card(
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                policy.policyName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 16.0),
+                              Text(policy.description),
+                              const SizedBox(height: 16.0),
+                              const Text(
+                                "Key Features",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+                              ...policy.keyFeatures
+                                  .map((feature) => Text(feature)),
+                              Text(
+                                "Purchase Feasibility: ${policy.matchScore}%",
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+                              ElevatedButton.icon(
+                                onPressed: () {},
+                                label: const Text(
+                                  "Proceed",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0f548c),
+                                  padding: const EdgeInsets.all(20),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ));
-            }).toList(),
-          ),
+                        ),
+                      ));
+                }).toList(),
+              );
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        )
       ],
     );
   }
