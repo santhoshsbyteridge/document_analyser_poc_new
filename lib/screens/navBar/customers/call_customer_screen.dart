@@ -6,6 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 
+class Policy {
+  final String name;
+  final String description;
+  final String keyFeatures;
+  final int purchaseFeasibility; // New field
+
+  Policy(
+      {required this.name,
+      required this.description,
+      required this.keyFeatures,
+      required this.purchaseFeasibility});
+}
+
 class CallCustomerPage extends StatefulWidget {
   final Leads lead;
   const CallCustomerPage({super.key, required this.lead});
@@ -20,6 +33,88 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
   int _elapsedTime = 0;
   late TextEditingController _callSummaryController;
 
+  Map<String, Map<String, dynamic>> checklistItems = {
+    "current_coverage": {
+      "label": "Current Coverage",
+      "checked": false,
+    },
+    "life_changes": {
+      "label": "Life Changes",
+      "checked": false,
+    },
+    "financial_goals": {
+      "label": "Financial Goals",
+      "checked": false,
+    },
+    "budget": {
+      "label": "Budget",
+      "checked": false,
+    },
+    "coverage_limits": {
+      "label": "Coverage Limits",
+      "checked": false,
+    },
+    "premium_costs": {
+      "label": "Premium Costs",
+      "checked": false,
+    },
+    "riders_benefits": {
+      "label": "Riders & Benefits",
+      "checked": false,
+    },
+    "policy_duration": {
+      "label": "Policy Duration",
+      "checked": false,
+    },
+  };
+
+  final List<Policy> _policies = [
+    Policy(
+        name: "CARE Insurance Super Premium",
+        description:
+            "This comprehensive health insurance policy offers both individual and family plans...",
+        keyFeatures: """
+      • Coverage Type: Individual and family plans\n
+      • Premiums: \$300/month for individuals, \$500/month for families\n
+      • Deductibles: \$1,000 per individual, \$2,500 per family\n
+      • Copayments: \$75 for doctor visits, \$50 for specialist visits\n
+      • Coinsurance: 20% after deductible\n
+      • Network Providers: Access to a nationwide network of doctors and hospitals\n
+      • Prescription Drugs: Tiered coverage with \$10, \$30, and \$50 copays\n
+      • Preventive Services: 100% covered for annual check-ups and screenings\n
+      • Emergency Services: Covered with \$100 copay, waived if admitted\n
+      • Hospitalization: 80% covered after deductible\n
+      • Mental Health: Includes coverage for therapy and counseling sessions
+    """,
+        purchaseFeasibility: 90),
+    Policy(
+        name: "Aditya Birla Health Insurance Plus",
+        description:
+            "This comprehensive health insurance policy offers both individual and family plans...",
+        keyFeatures: """
+      • Coverage Type: Individual and family plans\n
+      • Premiums: \$200/month for individuals, \$500/month for families\n
+      • Deductibles: \$1,000 per individual, \$2,500 per family\n
+      • Copayments: \$70 for doctor visits, \$50 for specialist visits\n
+      • Coinsurance: 20% after deductible\n
+      • Network Providers: Access to a nationwide network of doctors and hospitals\n
+      • Prescription Drugs: Tiered coverage with \$10, \$30, and \$50 copays\n
+      • Preventive Services: 100% covered for annual check-ups and screenings\n
+      • Emergency Services: Covered with \$100 copay, waived if admitted\n
+      • Hospitalization: 80% covered after deductible\n
+      • Mental Health: Includes coverage for therapy and counseling sessions
+    """,
+        purchaseFeasibility: 70),
+  ];
+
+  bool _showPolicies = false;
+
+  void _generatePolicies() {
+    setState(() {
+      _showPolicies = true; // Toggle the display of policies
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +123,12 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
 
   void _getcallsummary() {
     context.read<CustomerPhoneCallBloc>().add(const GetCallSummary());
+  }
+
+  void _updateChecklistItem(String key, bool value) {
+    setState(() {
+      checklistItems[key]?['checked'] = value;
+    });
   }
 
   @override
@@ -76,152 +177,177 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
   Column _buildUIForDesktop() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    // "John Doe",
-                    widget.lead.leadName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: _toggleCall,
-                    icon: Icon(_isCalling ? Icons.call_end : Icons.phone),
-                    label: Text(_isCalling
-                        ? "End Call (${_formatElapsedTime(_elapsedTime)})"
-                        : "Call Now"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isCalling ? Colors.red : Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Customer Name:  ${widget.lead.leadName}"),
-                        const SizedBox(height: 8.0),
-                        Text("Email: ${widget.lead.contactInfo}"),
-                      ],
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.lead.leadName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: _toggleCall,
+                            icon:
+                                Icon(_isCalling ? Icons.call_end : Icons.phone),
+                            label: Text(_isCalling
+                                ? "End Call (${_formatElapsedTime(_elapsedTime)})"
+                                : "Call Now"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  _isCalling ? Colors.red : Colors.green,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Phone: ${widget.lead.contactInfo}"),
-                        const SizedBox(height: 8.0),
-                        const Text("Address: 123 Main St, City, State"),
-                      ],
+                  const SizedBox(height: 16.0),
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Customer Name:  ${widget.lead.leadName}"),
+                                const SizedBox(height: 8.0),
+                                Text("Email: ${widget.lead.contactInfo}"),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Phone: ${widget.lead.contactInfo}"),
+                                const SizedBox(height: 8.0),
+                                const Text("Address: 123 Main St, City, State"),
+                              ],
+                            ),
+                          ),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Lead Source: XYZ"),
+                                SizedBox(height: 8.0),
+                                Text("Call History Updated: Yes"),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              // Edit
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Lead Source: XYZ"),
-                        SizedBox(height: 8.0),
-                        Text("Call History Updated: Yes"),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      // Edit
-                    },
-                  ),
+                  const SizedBox(height: 16.0),
+                  _buildMainContent(),
+                  const SizedBox(height: 16.0),
+                  _buildGeneratePoliciesSection()
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
-          _buildMainContent(),
         ],
       );
 
   Column _buildUIForMobile() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
-                    child: Text(
-                      "John Doe",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              "John Doe",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: _toggleCall,
+                            icon:
+                                Icon(_isCalling ? Icons.call_end : Icons.phone),
+                            label: Text(_isCalling
+                                ? "End Call (${_formatElapsedTime(_elapsedTime)})"
+                                : "Call Now"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  _isCalling ? Colors.red : Colors.green,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: _toggleCall,
-                    icon: Icon(_isCalling ? Icons.call_end : Icons.phone),
-                    label: Text(_isCalling
-                        ? "End Call (${_formatElapsedTime(_elapsedTime)})"
-                        : "Call Now"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isCalling ? Colors.red : Colors.green,
-                      foregroundColor: Colors.white,
+                  const SizedBox(height: 16.0),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Card(
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Customer Name: ${widget.lead.leadName}"),
+                            const SizedBox(height: 10),
+                            Text("Email: ${widget.lead.contactInfo}"),
+                            const SizedBox(height: 10),
+                            const Text("Phone: 123-456-7890"),
+                            const SizedBox(height: 10),
+                            const Text("Address: 123 Main St, City, State"),
+                            const SizedBox(height: 10),
+                            const Text("Lead Source: XYZ"),
+                            const SizedBox(height: 10),
+                            const Text("Call History Updated: Yes"),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 16.0),
+                  _buildMainContent(),
+                  const SizedBox(height: 16.0),
+                  _buildGeneratePoliciesSection()
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Customer Name: ${widget.lead.leadName}"),
-                    const SizedBox(height: 10),
-                    Text("Email: ${widget.lead.contactInfo}"),
-                    const SizedBox(height: 10),
-                    const Text("Phone: 123-456-7890"),
-                    const SizedBox(height: 10),
-                    const Text("Address: 123 Main St, City, State"),
-                    const SizedBox(height: 10),
-                    const Text("Lead Source: XYZ"),
-                    const SizedBox(height: 10),
-                    const Text("Call History Updated: Yes"),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          _buildMainContent(),
         ],
       );
 
@@ -231,8 +357,21 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
       children: [
         ElevatedButton.icon(
           onPressed: _getcallsummary,
-          icon: const Icon(Icons.auto_mode),
-          label: const Text("Summarize Call using AI"),
+          icon: const Icon(
+            Icons.auto_mode,
+            color: Colors.white,
+          ),
+          label: const Text(
+            "Summarize Call using AI",
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0f548c),
+            padding: const EdgeInsets.all(20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
         ),
         const SizedBox(height: 16.0),
         BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
@@ -297,6 +436,147 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
             }
           },
         ),
+      ],
+    );
+  }
+
+  // Widget _buildSuggestedPolicySection() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Card(
+  //         elevation: 4,
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(16.0),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               const Text(
+  //                 "Policy Discussion Checklist",
+  //                 style: TextStyle(
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16.0),
+  //               const Text(
+  //                 "Assessment",
+  //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  //               ),
+  //               // Iterate over the map to create CheckboxListTile for each item
+  //               ...checklistItems.entries.map((entry) {
+  //                 return CheckboxListTile(
+  //                   title: Text(entry.value['label']),
+  //                   value: entry.value['checked'],
+  //                   onChanged: (bool? value) {
+  //                     _updateChecklistItem(entry.key, value!);
+  //                   },
+  //                 );
+  //               }),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //       const SizedBox(height: 16.0),
+  //       ElevatedButton(
+  //         onPressed: () {
+  //           // Implement your action when "Generate Policies" is clicked
+  //         },
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: Colors.blue,
+  //           padding:
+  //               const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(5),
+  //           ),
+  //         ),
+  //         child: const Text("Generate Policies"),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _buildGeneratePoliciesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ElevatedButton.icon(
+          onPressed: _generatePolicies,
+          label: const Text(
+            "Generate Policies",
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0f548c),
+            padding: const EdgeInsets.all(20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        if (_showPolicies)
+          Column(
+            children: _policies.map((policy) {
+              return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            policy.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          Text(policy.description),
+                          const SizedBox(height: 16.0),
+                          const Text(
+                            "Key Features",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          Text(policy.keyFeatures),
+                          Text(
+                            "Purchase Feasibility: ${policy.purchaseFeasibility}%",
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          ElevatedButton.icon(
+                            onPressed: _generatePolicies,
+                            label: const Text(
+                              "Proceed",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0f548c),
+                              padding: const EdgeInsets.all(20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ));
+            }).toList(),
+          ),
       ],
     );
   }
