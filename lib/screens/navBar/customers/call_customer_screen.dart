@@ -73,15 +73,10 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
     context.read<CustomerPhoneCallBloc>().add(const GetCallSummary());
   }
 
-  void _updateChecklistItem(String key, bool value) {
-    setState(() {
-      checklistItems[key]?['checked'] = value;
-    });
-  }
-
   @override
   void dispose() {
     _callTimer?.cancel();
+    _callSummaryController.dispose();
     super.dispose();
   }
 
@@ -211,8 +206,7 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                   ),
                   const SizedBox(height: 16.0),
                   _buildMainContent(),
-                  const SizedBox(height: 16.0),
-                  _buildGeneratePoliciesSection()
+                  const SizedBox(height: 16.0)
                 ],
               ),
             ),
@@ -290,8 +284,7 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                   ),
                   const SizedBox(height: 16.0),
                   _buildMainContent(),
-                  const SizedBox(height: 16.0),
-                  _buildGeneratePoliciesSection()
+                  const SizedBox(height: 16.0)
                 ],
               ),
             ),
@@ -337,53 +330,75 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
               if (state is CallSummaryState) {
                 _callSummaryController.text = state.callSummary;
               }
-              return Card(
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Call Summary"),
-                      const SizedBox(height: 8.0),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _callSummaryController,
-                              maxLines: 10,
-                              decoration: InputDecoration(
-                                hintText: (state is CallSummaryState)
-                                    ? 'Call summary generated.'
-                                    : 'No summary available...',
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.copy),
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                    text: _callSummaryController.text),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Copied to clipboard!'),
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Call Summary"),
+                            const SizedBox(height: 8.0),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _callSummaryController,
+                                    maxLines: 10,
+                                    decoration: InputDecoration(
+                                      hintText: (state is CallSummaryState)
+                                          ? 'Call summary generated.'
+                                          : 'No summary available...',
+                                      border: const OutlineInputBorder(),
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
-                            tooltip: 'Copy to clipboard',
-                          ),
-                        ],
+                                IconButton(
+                                  icon: const Icon(Icons.copy),
+                                  onPressed: () {
+                                    Clipboard.setData(
+                                      ClipboardData(
+                                          text: _callSummaryController.text),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Copied to clipboard!'),
+                                      ),
+                                    );
+                                  },
+                                  tooltip: 'Copy to clipboard',
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-              );
+                    ),
+                    const SizedBox(height: 16.0),
+                    if (state is CallSummaryState &&
+                        state.callSummary.isNotEmpty)
+                      ElevatedButton.icon(
+                        onPressed: () => _getRankedPolicies(state.callSummary),
+                        label: const Text(
+                          "Generate Policies",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0f548c),
+                          padding: const EdgeInsets.all(20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                      ),
+                  ]);
             }
           },
         ),
+        _buildGeneratePoliciesSection()
       ],
     );
   }
@@ -392,24 +407,14 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton.icon(
-          onPressed: () => _getRankedPolicies(_callSummaryController.text),
-          label: const Text(
-            "Generate Policies",
-            style: TextStyle(color: Colors.white),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0f548c),
-            padding: const EdgeInsets.all(20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-        ),
         const SizedBox(height: 16.0),
-        BlocBuilder(
+        BlocBuilder<ranked_policy.PolicyBloc, ranked_policy.PolicyState>(
           builder: (context, state) {
-            if (state is ranked_policy.ErrorState) {
+            if (state is ranked_policy.PoliciesLoadingState) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is ranked_policy.ErrorState) {
               return Text(
                 'Error: ${state.error.errorMessage}',
                 style: const TextStyle(color: Colors.red),
@@ -448,12 +453,17 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                               const SizedBox(height: 16.0),
                               ...policy.keyFeatures
                                   .map((feature) => Text(feature)),
+                              const SizedBox(height: 16.0),
                               Text(
                                 "Purchase Feasibility: ${policy.matchScore}%",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                                  color: policy.matchScore >= 80
+                                      ? Colors.green
+                                      : (policy.matchScore >= 50
+                                          ? Colors.orange[600]
+                                          : Colors.red),
                                 ),
                               ),
                               const SizedBox(height: 16.0),
@@ -478,9 +488,7 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                 }).toList(),
               );
             }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const SizedBox.shrink();
           },
         )
       ],

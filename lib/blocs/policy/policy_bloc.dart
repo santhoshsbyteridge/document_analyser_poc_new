@@ -13,6 +13,7 @@ class PolicyBloc extends Bloc<PolicyEvent, PolicyState> {
   late PhoneCallService _phoneCallService;
 
   PolicyBloc(PhoneCallService phoneCallService) : super(PolicyInitial()) {
+    _phoneCallService = phoneCallService;
     on<FetchRankedPolicies>(getRankedPolicies);
   }
 
