@@ -304,15 +304,15 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
       _summarizeUsingAIButton() {
     return BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
       builder: (context, state) {
-        // bool isCallSummaryEmpty =
-        //     state is! CallSummaryState || state.callSummary.isEmpty;
+        bool isCallSummaryEmpty =
+            state is! CallSummaryState || state.callSummary.isEmpty;
 
         return Visibility(
           visible: true,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: ElevatedButton.icon(
-              onPressed: _getcallsummary,
+              onPressed: isCallSummaryEmpty ? _getcallsummary : () {},
               icon: const Icon(
                 Icons.auto_mode,
                 color: Colors.white,
@@ -322,7 +322,8 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0f548c),
+                backgroundColor:
+                    isCallSummaryEmpty ? const Color(0xFF0f548c) : Colors.grey,
                 padding: const EdgeInsets.all(14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
