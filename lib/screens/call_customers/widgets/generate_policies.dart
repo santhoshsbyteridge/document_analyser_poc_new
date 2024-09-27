@@ -59,17 +59,29 @@ class _GeneratePoliciesState extends State<GeneratePolicies> {
     List<RankedPolicy> rankedPolicies = state.rankedPolicies;
 
     return Column(
-      children: rankedPolicies.map((rankedPolicy) {
-        // Get the current checked status for the policy
-        bool isChecked = _checkedPolicies[rankedPolicy.id] ?? false;
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Suggested Policies",
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        Column(
+          children: rankedPolicies.map((rankedPolicy) {
+            bool isChecked = _checkedPolicies[rankedPolicy.id] ?? false;
 
-        return PolicyCard(
-          policy: rankedPolicy,
-          isChecked: isChecked,
-          onChanged: (val) =>
-              _policyCheckBoxOnClickedHandler(val, rankedPolicy),
-        );
-      }).toList(),
+            return PolicyCard(
+              policy: rankedPolicy,
+              isChecked: isChecked,
+              onChanged: (val) =>
+                  _policyCheckBoxOnClickedHandler(val, rankedPolicy),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

@@ -18,68 +18,95 @@ class PolicyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      color: const Color(0xFFFAFAFA),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CheckboxTileWidget(
-            isChecked: isChecked,
-            onChanged: onChanged,
-            title: policy.policyName,
-          ),
-          const Text(
-            "Policy Description",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CheckboxTileWidget(
+              isChecked: isChecked,
+              onChanged: onChanged,
+              title: policy.policyName,
             ),
-          ),
-          const SizedBox(height: 16.0),
-          Card(
-            elevation: 0, // Removes the shadow
-            color: Colors.white, // Set the background color to white
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(policy.description),
+            const Text(
+              "Policy Description",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
             ),
-          ),
-          const SizedBox(height: 16.0),
-          const Text(
-            "Key Features",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          ...policy.keyFeatures.map((feature) => Text(feature)),
-          const SizedBox(height: 16.0),
-          Text(
-            "Purchase Feasibility: ${policy.matchScore}%",
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-              color: policy.matchScore >= 80
-                  ? Colors.green
-                  : (policy.matchScore >= 50 ? Colors.orange[600] : Colors.red),
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton.icon(
-            onPressed: () {},
-            label: const Text(
-              "Proceed",
-              style: TextStyle(color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0f548c),
-              padding: const EdgeInsets.all(20),
+            const SizedBox(height: 16.0),
+            Card(
+              elevation: 0,
+              color: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(policy.description),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16.0),
+            const Text(
+              "Key Features",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            Card(
+              elevation: 0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: policy.keyFeatures
+                      .map((feature) => Text(feature))
+                      .toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            Text(
+              "Purchase Feasibility: ${policy.matchScore}%",
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+                color: policy.matchScore >= 80
+                    ? Colors.green
+                    : (policy.matchScore >= 50
+                        ? Colors.orange[600]
+                        : Colors.red),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton.icon(
+              onPressed: () {},
+              label: const Text(
+                "Proceed",
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0f548c),
+                padding: const EdgeInsets.all(20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
