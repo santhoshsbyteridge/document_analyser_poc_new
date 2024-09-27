@@ -22,14 +22,21 @@ class PolicyBloc extends Bloc<PolicyEvent, PolicyState> {
     Emitter<PolicyState> emit,
   ) async {
     String callSummary = event.summary;
+    print('event.summary  ${event.summary}');
     try {
       emit(const PoliciesLoadingState(isLoading: true));
       Either<ErrorDetails, List<RankedPolicy>> response =
           await _phoneCallService.getRankedPolicies(callSummary);
+
+      print('response $response');
       // Handle the response
       response.fold(
         (error) => emit(ErrorState(error: error)),
-        (data) => emit(RankedPoliciesState(rankedPolicies: data)),
+        (data) {
+          print('data : ');
+          print(data);
+          emit(RankedPoliciesState(rankedPolicies: data));
+        },
       );
     } catch (e) {
       emit(ErrorState(error: ErrorDetails(errorMessage: e.toString())));
