@@ -7,7 +7,6 @@ import 'package:document_analyser_poc_new/screens/call_customers/widgets/generat
 import 'package:document_analyser_poc_new/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/services.dart';
 
 class CallCustomerPage extends StatefulWidget {
   final Leads lead;
@@ -22,6 +21,8 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
   Timer? _callTimer;
   int _elapsedTime = 0;
   late TextEditingController _callSummaryController;
+
+  bool isBtnEnabled = true;
 
   void _getRankedPolicies(String summary) {
     context
@@ -74,213 +75,167 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final deviceType = AppHelpers.getDevice(context);
+    return Container(
+      color: Colors.white,
+      child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+                child: SingleChildScrollView(child: _buildUI()
+                    // deviceType == Devices.webpage
+                    //     ? _buildUIForDesktop()
+                    //     : _buildUIForMobile()
 
-    return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: deviceType == Devices.webpage
-            ? _buildUIForDesktop()
-            : _buildUIForMobile());
+                    ))
+          ])),
+    );
   }
 
-  Column _buildUIForDesktop() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            widget.lead.leadName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: _toggleCall,
-                            icon:
-                                Icon(_isCalling ? Icons.call_end : Icons.phone),
-                            label: Text(_isCalling
-                                ? "End Call (${_formatElapsedTime(_elapsedTime)})"
-                                : "Call Now"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  _isCalling ? Colors.red : Colors.green,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Card(
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Customer Name:  ${widget.lead.leadName}"),
-                                const SizedBox(height: 8.0),
-                                Text("Email: ${widget.lead.contactInfo}"),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Phone: ${widget.lead.contactInfo}"),
-                                const SizedBox(height: 8.0),
-                                const Text("Address: 123 Main St, City, State"),
-                              ],
-                            ),
-                          ),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Lead Source: XYZ"),
-                                SizedBox(height: 8.0),
-                                Text("Call History Updated: Yes"),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              // Edit
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildMainContent(),
-                  const SizedBox(height: 16.0)
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
+  Column _buildUI() {
+    final deviceType = AppHelpers.getDevice(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _headerCard(),
+        const SizedBox(height: 16.0),
+        deviceType == Devices.webpage
+            ? _customerDetailsDesktop()
+            : _customerDetailsMobile(),
+        const SizedBox(height: 16.0),
+        _buildMainContent(),
+        const SizedBox(height: 16.0)
+      ],
+    );
+  }
 
-  Column _buildUIForMobile() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
+  Card _headerCard() {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.lead.leadName,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 24.0,
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: _toggleCall,
+              icon: Icon(_isCalling ? Icons.call_end : Icons.phone),
+              label: Text(_isCalling
+                  ? "End Call (${_formatElapsedTime(_elapsedTime)})"
+                  : "Call Now"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isCalling ? Colors.red : Colors.green,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _customerDetailsDesktop() {
+    return Card(
+      color: Colors.white,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5), // Optional: for rounded corners
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Card(
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              "John Doe",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: _toggleCall,
-                            icon:
-                                Icon(_isCalling ? Icons.call_end : Icons.phone),
-                            label: Text(_isCalling
-                                ? "End Call (${_formatElapsedTime(_elapsedTime)})"
-                                : "Call Now"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  _isCalling ? Colors.red : Colors.green,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Card(
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Customer Name: ${widget.lead.leadName}"),
-                            const SizedBox(height: 10),
-                            Text("Email: ${widget.lead.contactInfo}"),
-                            const SizedBox(height: 10),
-                            const Text("Phone: 123-456-7890"),
-                            const SizedBox(height: 10),
-                            const Text("Address: 123 Main St, City, State"),
-                            const SizedBox(height: 10),
-                            const Text("Lead Source: XYZ"),
-                            const SizedBox(height: 10),
-                            const Text("Call History Updated: Yes"),
-                            const SizedBox(height: 10),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildMainContent(),
-                  const SizedBox(height: 16.0)
+                  Text("Customer Name:  ${widget.lead.leadName}"),
+                  const SizedBox(height: 8.0),
+                  Text("Email: ${widget.lead.contactInfo}"),
                 ],
               ),
             ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Phone: ${widget.lead.contactInfo}"),
+                  const SizedBox(height: 8.0),
+                  const Text("Address: 123 Main St, City, State"),
+                ],
+              ),
+            ),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Lead Source: XYZ"),
+                  SizedBox(height: 8.0),
+                  Text("Call History Updated: Yes"),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                // Edit
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SizedBox _customerDetailsMobile() {
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(5), // Optional: for rounded corners
+        ),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Customer Name: ${widget.lead.leadName}"),
+              const SizedBox(height: 10),
+              Text("Email: ${widget.lead.contactInfo}"),
+              const SizedBox(height: 10),
+              const Text("Phone: 123-456-7890"),
+              const SizedBox(height: 10),
+              const Text("Address: 123 Main St, City, State"),
+              const SizedBox(height: 10),
+              const Text("Lead Source: XYZ"),
+              const SizedBox(height: 10),
+              const Text("Call History Updated: Yes"),
+              const SizedBox(height: 10),
+            ],
           ),
-        ],
-      );
+        ),
+      ),
+    );
+  }
 
   Widget _buildMainContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton.icon(
-          onPressed: _getcallsummary,
-          icon: const Icon(
-            Icons.auto_mode,
-            color: Colors.white,
-          ),
-          label: const Text(
-            "Summarize Call using AI",
-            style: TextStyle(color: Colors.white),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0f548c),
-            padding: const EdgeInsets.all(16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16.0),
+        // Bloc to conditionally show the button if callSummary is empty
+        _summarizeUsingAIButton(),
         BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
           builder: (context, state) {
             if (state is LoadingState && state.isLoading) {
@@ -288,84 +243,142 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                 child: CircularProgressIndicator(),
               );
             } else if (state is ErrorState) {
-              return Text(
-                'Error: ${state.error.errorMessage}',
-                style: const TextStyle(color: Colors.red),
+              return Padding(
+                padding: const EdgeInsets.only(
+                    bottom: 16.0), // Add space for error message
+                child: Text(
+                  'Error: ${state.error.errorMessage}',
+                  style: const TextStyle(color: Colors.red),
+                ),
               );
             } else {
               if (state is CallSummaryState) {
                 _callSummaryController.text = state.callSummary;
               }
               return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text("Call Summary"),
-                            const SizedBox(height: 8.0),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _callSummaryController,
-                                    maxLines: 10,
-                                    decoration: InputDecoration(
-                                      hintText: (state is CallSummaryState)
-                                          ? 'Call summary generated.'
-                                          : 'No summary available...',
-                                      border: const OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.copy),
-                                  onPressed: () {
-                                    Clipboard.setData(
-                                      ClipboardData(
-                                          text: _callSummaryController.text),
-                                    );
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Copied to clipboard!'),
-                                      ),
-                                    );
-                                  },
-                                  tooltip: 'Copy to clipboard',
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Call Summary",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8.0),
+                  TextField(
+                    controller: _callSummaryController,
+                    maxLines: 10,
+                    decoration: InputDecoration(
+                      hintText: (state is CallSummaryState)
+                          ? 'Call summary generated.'
+                          : 'No summary available...',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
                     ),
-                    const SizedBox(height: 16.0),
-                    if (state is CallSummaryState &&
-                        state.callSummary.isNotEmpty)
-                      ElevatedButton.icon(
-                        onPressed: () => _getRankedPolicies(state.callSummary),
-                        label: const Text(
-                          "Generate Policies",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0f548c),
-                          padding: const EdgeInsets.all(20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                      ),
-                  ]);
+                  ),
+                  const SizedBox(height: 16.0),
+                  // if (state is CallSummaryState && state.callSummary.isNotEmpty)
+                  _generatePoliciesButton(),
+                  // const SizedBox(height: 16.0), // Space below the button
+                ],
+              );
             }
           },
         ),
-        const GeneratePolicies()
+        const GeneratePolicies(),
       ],
+    );
+  }
+
+  BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>
+      _summarizeUsingAIButton() {
+    return BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
+      builder: (context, state) {
+        // bool isCallSummaryEmpty =
+        //     state is! CallSummaryState || state.callSummary.isEmpty;
+
+        return Visibility(
+          visible: true,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: ElevatedButton.icon(
+              onPressed: _getcallsummary,
+              icon: const Icon(
+                Icons.auto_mode,
+                color: Colors.white,
+              ),
+              label: const Text(
+                "Summarize Call using AI",
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0f548c),
+                padding: const EdgeInsets.all(14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>
+      _generatePoliciesButton() {
+    return BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
+      builder: (context, state) {
+        if (state is CallSummaryState) {
+          String callSummary = "";
+          if (callSummary.isNotEmpty) {
+            callSummary = state.callSummary;
+          }
+          bool isCallSummaryNotEmpty = state.callSummary.isNotEmpty;
+          return Visibility(
+            visible: isCallSummaryNotEmpty,
+            child: BlocBuilder<ranked_policy.PolicyBloc,
+                ranked_policy.PolicyState>(
+              builder: (context, policyState) {
+                bool isBtnEnabled =
+                    !(policyState is ranked_policy.RankedPoliciesState &&
+                        policyState.rankedPolicies.isNotEmpty);
+                return Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: ElevatedButton.icon(
+                    onPressed: isBtnEnabled
+                        ? () => _getRankedPolicies(callSummary)
+                        : () {},
+                    label: const Text(
+                      "Generate Policies",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isBtnEnabled ? const Color(0xFF0f548c) : Colors.grey,
+                      padding: const EdgeInsets.all(14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }

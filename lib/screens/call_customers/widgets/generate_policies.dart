@@ -1,12 +1,26 @@
+import 'package:document_analyser_poc_new/models/ranked_policy.dart';
+import 'package:document_analyser_poc_new/screens/call_customers/widgets/policy_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:document_analyser_poc_new/blocs/policy/policy_bloc.dart'
     as ranked_policy;
 
-class GeneratePolicies extends StatelessWidget {
-  const GeneratePolicies({
-    super.key,
-  });
+class GeneratePolicies extends StatefulWidget {
+  const GeneratePolicies({super.key});
+
+  @override
+  State<GeneratePolicies> createState() => _GeneratePoliciesState();
+}
+
+class _GeneratePoliciesState extends State<GeneratePolicies> {
+  Map<String, bool> _checkedPolicies = {}; // Key is policy ID or index
+
+  void _policyCheckBoxOnClickedHandler(bool? value, RankedPolicy rankedPolicy) {
+    setState(() {
+      // Update the checked status when the checkbox is clicked
+      _checkedPolicies[rankedPolicy.id] = value ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,78 +40,36 @@ class GeneratePolicies extends StatelessWidget {
                 style: const TextStyle(color: Colors.red),
               );
             } else if (state is ranked_policy.RankedPoliciesState) {
-              return Column(
-                children: state.rankedPolicies.map((policy) {
-                  return Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Card(
-                        elevation: 4,
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                policy.policyName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                ),
-                              ),
-                              const SizedBox(height: 16.0),
-                              Text(policy.description),
-                              const SizedBox(height: 16.0),
-                              const Text(
-                                "Key Features",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              const SizedBox(height: 16.0),
-                              ...policy.keyFeatures
-                                  .map((feature) => Text(feature)),
-                              const SizedBox(height: 16.0),
-                              Text(
-                                "Purchase Feasibility: ${policy.matchScore}%",
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: policy.matchScore >= 80
-                                      ? Colors.green
-                                      : (policy.matchScore >= 50
-                                          ? Colors.orange[600]
-                                          : Colors.red),
-                                ),
-                              ),
-                              const SizedBox(height: 16.0),
-                              ElevatedButton.icon(
-                                onPressed: () {},
-                                label: const Text(
-                                  "Proceed",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0f548c),
-                                  padding: const EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ));
-                }).toList(),
-              );
+              if (_checkedPolicies.isEmpty) {
+                _checkedPolicies = {
+                  for (var policy in state.rankedPolicies) policy.id: false
+                };
+              }
+
+              return _buildPolicyCardListUI(state);
             }
             return const SizedBox.shrink();
           },
         )
       ],
+    );
+  }
+
+  Widget _buildPolicyCardListUI(ranked_policy.RankedPoliciesState state) {
+    List<RankedPolicy> rankedPolicies = state.rankedPolicies;
+
+    return Column(
+      children: rankedPolicies.map((rankedPolicy) {
+        // Get the current checked status for the policy
+        bool isChecked = _checkedPolicies[rankedPolicy.id] ?? false;
+
+        return PolicyCard(
+          policy: rankedPolicy,
+          isChecked: isChecked,
+          onChanged: (val) =>
+              _policyCheckBoxOnClickedHandler(val, rankedPolicy),
+        );
+      }).toList(),
     );
   }
 }

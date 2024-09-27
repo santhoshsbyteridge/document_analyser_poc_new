@@ -20,14 +20,15 @@ RankedPolicy _$RankedPolicyFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$RankedPolicy {
+  String get id => throw _privateConstructorUsedError;
   String get accuracy => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
+  String get rank => throw _privateConstructorUsedError;
+  String get reason => throw _privateConstructorUsedError;
   @JsonKey(name: "match_score")
   int get matchScore => throw _privateConstructorUsedError;
   @JsonKey(name: "policy_name")
   String get policyName => throw _privateConstructorUsedError;
-  String get rank => throw _privateConstructorUsedError;
-  String get reason => throw _privateConstructorUsedError;
   @JsonKey(name: "key_features")
   List<String> get keyFeatures => throw _privateConstructorUsedError;
 
@@ -48,12 +49,13 @@ abstract class $RankedPolicyCopyWith<$Res> {
       _$RankedPolicyCopyWithImpl<$Res, RankedPolicy>;
   @useResult
   $Res call(
-      {String accuracy,
+      {String id,
+      String accuracy,
       String description,
-      @JsonKey(name: "match_score") int matchScore,
-      @JsonKey(name: "policy_name") String policyName,
       String rank,
       String reason,
+      @JsonKey(name: "match_score") int matchScore,
+      @JsonKey(name: "policy_name") String policyName,
       @JsonKey(name: "key_features") List<String> keyFeatures});
 }
 
@@ -72,15 +74,20 @@ class _$RankedPolicyCopyWithImpl<$Res, $Val extends RankedPolicy>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? accuracy = null,
     Object? description = null,
-    Object? matchScore = null,
-    Object? policyName = null,
     Object? rank = null,
     Object? reason = null,
+    Object? matchScore = null,
+    Object? policyName = null,
     Object? keyFeatures = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       accuracy: null == accuracy
           ? _value.accuracy
           : accuracy // ignore: cast_nullable_to_non_nullable
@@ -89,14 +96,6 @@ class _$RankedPolicyCopyWithImpl<$Res, $Val extends RankedPolicy>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      matchScore: null == matchScore
-          ? _value.matchScore
-          : matchScore // ignore: cast_nullable_to_non_nullable
-              as int,
-      policyName: null == policyName
-          ? _value.policyName
-          : policyName // ignore: cast_nullable_to_non_nullable
-              as String,
       rank: null == rank
           ? _value.rank
           : rank // ignore: cast_nullable_to_non_nullable
@@ -104,6 +103,14 @@ class _$RankedPolicyCopyWithImpl<$Res, $Val extends RankedPolicy>
       reason: null == reason
           ? _value.reason
           : reason // ignore: cast_nullable_to_non_nullable
+              as String,
+      matchScore: null == matchScore
+          ? _value.matchScore
+          : matchScore // ignore: cast_nullable_to_non_nullable
+              as int,
+      policyName: null == policyName
+          ? _value.policyName
+          : policyName // ignore: cast_nullable_to_non_nullable
               as String,
       keyFeatures: null == keyFeatures
           ? _value.keyFeatures
@@ -122,12 +129,13 @@ abstract class _$$RankedPolicyImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String accuracy,
+      {String id,
+      String accuracy,
       String description,
-      @JsonKey(name: "match_score") int matchScore,
-      @JsonKey(name: "policy_name") String policyName,
       String rank,
       String reason,
+      @JsonKey(name: "match_score") int matchScore,
+      @JsonKey(name: "policy_name") String policyName,
       @JsonKey(name: "key_features") List<String> keyFeatures});
 }
 
@@ -144,15 +152,20 @@ class __$$RankedPolicyImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? accuracy = null,
     Object? description = null,
-    Object? matchScore = null,
-    Object? policyName = null,
     Object? rank = null,
     Object? reason = null,
+    Object? matchScore = null,
+    Object? policyName = null,
     Object? keyFeatures = null,
   }) {
     return _then(_$RankedPolicyImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       accuracy: null == accuracy
           ? _value.accuracy
           : accuracy // ignore: cast_nullable_to_non_nullable
@@ -161,14 +174,6 @@ class __$$RankedPolicyImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      matchScore: null == matchScore
-          ? _value.matchScore
-          : matchScore // ignore: cast_nullable_to_non_nullable
-              as int,
-      policyName: null == policyName
-          ? _value.policyName
-          : policyName // ignore: cast_nullable_to_non_nullable
-              as String,
       rank: null == rank
           ? _value.rank
           : rank // ignore: cast_nullable_to_non_nullable
@@ -176,6 +181,14 @@ class __$$RankedPolicyImplCopyWithImpl<$Res>
       reason: null == reason
           ? _value.reason
           : reason // ignore: cast_nullable_to_non_nullable
+              as String,
+      matchScore: null == matchScore
+          ? _value.matchScore
+          : matchScore // ignore: cast_nullable_to_non_nullable
+              as int,
+      policyName: null == policyName
+          ? _value.policyName
+          : policyName // ignore: cast_nullable_to_non_nullable
               as String,
       keyFeatures: null == keyFeatures
           ? _value._keyFeatures
@@ -190,12 +203,13 @@ class __$$RankedPolicyImplCopyWithImpl<$Res>
 @JsonSerializable(explicitToJson: true)
 class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
   const _$RankedPolicyImpl(
-      {required this.accuracy,
+      {required this.id,
+      required this.accuracy,
       required this.description,
-      @JsonKey(name: "match_score") required this.matchScore,
-      @JsonKey(name: "policy_name") required this.policyName,
       required this.rank,
       required this.reason,
+      @JsonKey(name: "match_score") required this.matchScore,
+      @JsonKey(name: "policy_name") required this.policyName,
       @JsonKey(name: "key_features") required final List<String> keyFeatures})
       : _keyFeatures = keyFeatures;
 
@@ -203,19 +217,21 @@ class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
       _$$RankedPolicyImplFromJson(json);
 
   @override
+  final String id;
+  @override
   final String accuracy;
   @override
   final String description;
+  @override
+  final String rank;
+  @override
+  final String reason;
   @override
   @JsonKey(name: "match_score")
   final int matchScore;
   @override
   @JsonKey(name: "policy_name")
   final String policyName;
-  @override
-  final String rank;
-  @override
-  final String reason;
   final List<String> _keyFeatures;
   @override
   @JsonKey(name: "key_features")
@@ -227,7 +243,7 @@ class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'RankedPolicy(accuracy: $accuracy, description: $description, matchScore: $matchScore, policyName: $policyName, rank: $rank, reason: $reason, keyFeatures: $keyFeatures)';
+    return 'RankedPolicy(id: $id, accuracy: $accuracy, description: $description, rank: $rank, reason: $reason, matchScore: $matchScore, policyName: $policyName, keyFeatures: $keyFeatures)';
   }
 
   @override
@@ -235,12 +251,13 @@ class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'RankedPolicy'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('accuracy', accuracy))
       ..add(DiagnosticsProperty('description', description))
-      ..add(DiagnosticsProperty('matchScore', matchScore))
-      ..add(DiagnosticsProperty('policyName', policyName))
       ..add(DiagnosticsProperty('rank', rank))
       ..add(DiagnosticsProperty('reason', reason))
+      ..add(DiagnosticsProperty('matchScore', matchScore))
+      ..add(DiagnosticsProperty('policyName', policyName))
       ..add(DiagnosticsProperty('keyFeatures', keyFeatures));
   }
 
@@ -249,16 +266,17 @@ class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RankedPolicyImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.accuracy, accuracy) ||
                 other.accuracy == accuracy) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.rank, rank) || other.rank == rank) &&
+            (identical(other.reason, reason) || other.reason == reason) &&
             (identical(other.matchScore, matchScore) ||
                 other.matchScore == matchScore) &&
             (identical(other.policyName, policyName) ||
                 other.policyName == policyName) &&
-            (identical(other.rank, rank) || other.rank == rank) &&
-            (identical(other.reason, reason) || other.reason == reason) &&
             const DeepCollectionEquality()
                 .equals(other._keyFeatures, _keyFeatures));
   }
@@ -267,12 +285,13 @@ class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      id,
       accuracy,
       description,
-      matchScore,
-      policyName,
       rank,
       reason,
+      matchScore,
+      policyName,
       const DeepCollectionEquality().hash(_keyFeatures));
 
   /// Create a copy of RankedPolicy
@@ -293,12 +312,13 @@ class _$RankedPolicyImpl with DiagnosticableTreeMixin implements _RankedPolicy {
 
 abstract class _RankedPolicy implements RankedPolicy {
   const factory _RankedPolicy(
-      {required final String accuracy,
+      {required final String id,
+      required final String accuracy,
       required final String description,
-      @JsonKey(name: "match_score") required final int matchScore,
-      @JsonKey(name: "policy_name") required final String policyName,
       required final String rank,
       required final String reason,
+      @JsonKey(name: "match_score") required final int matchScore,
+      @JsonKey(name: "policy_name") required final String policyName,
       @JsonKey(name: "key_features")
       required final List<String> keyFeatures}) = _$RankedPolicyImpl;
 
@@ -306,19 +326,21 @@ abstract class _RankedPolicy implements RankedPolicy {
       _$RankedPolicyImpl.fromJson;
 
   @override
+  String get id;
+  @override
   String get accuracy;
   @override
   String get description;
+  @override
+  String get rank;
+  @override
+  String get reason;
   @override
   @JsonKey(name: "match_score")
   int get matchScore;
   @override
   @JsonKey(name: "policy_name")
   String get policyName;
-  @override
-  String get rank;
-  @override
-  String get reason;
   @override
   @JsonKey(name: "key_features")
   List<String> get keyFeatures;
