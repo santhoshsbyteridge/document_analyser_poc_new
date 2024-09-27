@@ -1,5 +1,5 @@
 import 'package:document_analyser_poc_new/models/leads.dart';
-import 'package:document_analyser_poc_new/screens/navBar/customers/call_customer_screen.dart';
+import 'package:document_analyser_poc_new/screens/call_customers/call_customer_screen.dart';
 import 'package:document_analyser_poc_new/screens/navBar/customers/customers_screen.dart';
 import 'package:document_analyser_poc_new/screens/navBar/dashboard_screen.dart';
 import 'package:flutter/material.dart';
