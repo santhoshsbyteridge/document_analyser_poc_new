@@ -288,13 +288,14 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
                   ),
                   const SizedBox(height: 16.0),
                   // if (state is CallSummaryState && state.callSummary.isNotEmpty)
-                  _generatePoliciesButton(),
+                  // _generatePoliciesButton(),
                   // const SizedBox(height: 16.0), // Space below the button
                 ],
               );
             }
           },
         ),
+        _generatePoliciesButton(),
         const GeneratePolicies(),
       ],
     );
@@ -340,11 +341,13 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
       _generatePoliciesButton() {
     return BlocBuilder<CustomerPhoneCallBloc, CustomerPhoneCallState>(
       builder: (context, state) {
-        if (state is CallSummaryState) {
-          String callSummary = "";
-          if (callSummary.isNotEmpty) {
-            callSummary = state.callSummary;
-          }
+        if (state is CallSummaryState && state.callSummary.isNotEmpty) {
+          String callSummary = state.callSummary;
+          // if (callSummary.isNotEmpty) {
+          //   callSummary = state.callSummary;
+          //   print('callSummary');
+          //   print(state.callSummary);
+          // }
           bool isCallSummaryNotEmpty = state.callSummary.isNotEmpty;
           return Visibility(
             visible: isCallSummaryNotEmpty,

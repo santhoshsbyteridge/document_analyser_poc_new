@@ -29,7 +29,7 @@ class _ActionsPopupMenuUIState extends State<ActionsPopupMenuUI> {
         return PopupMenuButton<int>(
           itemBuilder: (context) => [..._buildActionsList()],
           offset: const Offset(0, 50),
-          color: Colors.grey,
+          color: Colors.white,
           elevation: 2,
         );
       },
