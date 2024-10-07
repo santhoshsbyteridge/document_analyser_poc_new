@@ -30,7 +30,7 @@ class PhoneCallService {
       Response response = await Dio().post(
         "${AppNetworkConstants.BASE_URL}/phone-call/summary",
         data: {
-          "file_url": "",
+          "file_url": "assets/audio_files/policy_conv_2.mp3",
         },
       );
 
@@ -70,6 +70,8 @@ class PhoneCallService {
     String summary,
   ) async {
     try {
+      print('summary');
+      print(summary);
       Response response = await Dio().post(
         "${AppNetworkConstants.BASE_URL}/phone-call/generate_policies",
         data: {
