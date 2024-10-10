@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:document_analyser_poc_new/blocs/customer_phone_call/customer_phone_call_bloc.dart';
 import 'package:document_analyser_poc_new/blocs/policy/policy_bloc.dart'
     as ranked_policy;
@@ -7,6 +8,13 @@ import 'package:document_analyser_poc_new/screens/call_customers/widgets/generat
 import 'package:document_analyser_poc_new/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:convert';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:just_audio/just_audio.dart';
+import 'package:flutter_sound/flutter_sound.dart' as Recorder;
+
+import '../../utils/app_network_constants.dart';
 
 class CallCustomerPage extends StatefulWidget {
   final Leads lead;
@@ -24,6 +32,17 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
 
   bool isBtnEnabled = true;
 
+  late IO.Socket socket;
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  StreamSubscription<PlayerState>? _playerStateSubscription;
+  final Recorder.FlutterSoundRecorder _recorder =
+      Recorder.FlutterSoundRecorder();
+  StreamSubscription? _recordingSubscription;
+  Timer? _timer;
+  final String _outputPath =
+      'assets/audio/audio_record.aac'; // File path for audio
+
   void _getRankedPolicies(String summary) {
     context
         .read<ranked_policy.PolicyBloc>()
@@ -34,6 +53,75 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
   void initState() {
     super.initState();
     _callSummaryController = TextEditingController();
+
+    socket = IO.io(AppNetworkConstants.BASE_URL, <String, dynamic>{
+      'transports': ['websocket'], // Specify the transport method
+      'autoConnect': false, // Disable auto connection
+    });
+
+    socket.on('summary_data', (data) {
+      print('websocket listener data - $data');
+    });
+
+    // Connect to the socket
+    socket.connect();
+
+    _initializeAudioPlayer();
+  }
+
+  void _initializeAudioPlayer() async {
+    // await _audioPlayer.setUrl('https://www.example.com/audio.mp3');
+
+    // Listen to player state changes
+    _playerStateSubscription =
+        _audioPlayer.playerStateStream.listen((state) async {
+      if (state.playing) {
+        print('Audio is playing');
+        _startRecordingAndConvertToBase64InChunks();
+      } else {
+        print('Audio is paused/stopped');
+        _stopRecording();
+      }
+    });
+  }
+
+  Future<void> _playAudio() async {
+    try {
+      // Load and play the audio file
+      await _audioPlayer
+          .setAudioSource(AudioSource.asset('assets/audio/sample_audio.mp3'));
+      _audioPlayer.play();
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  void _stopAudio() {
+    _audioPlayer.stop();
+  }
+
+  void _startRecordingAndConvertToBase64InChunks() async {
+    await _recorder.startRecorder(toFile: _outputPath);
+
+    // Periodically read file in chunks and convert to base64
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
+      try {
+        File audioFile = File(_outputPath);
+        if (await audioFile.exists()) {
+          final bytes = await audioFile.readAsBytes();
+          String base64Data = base64Encode(bytes);
+          print('Real-time audio data in base64: $base64Data');
+        }
+      } catch (e) {
+        print('Error reading file: $e');
+      }
+    });
+  }
+
+  void _stopRecording() async {
+    await _recorder.stopRecorder();
+    _recordingSubscription?.cancel();
+    print('Recording stopped');
   }
 
   void _getcallsummary() {
@@ -44,20 +132,41 @@ class _CallCustomerPageState extends State<CallCustomerPage> {
   void dispose() {
     _callTimer?.cancel();
     _callSummaryController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
-  void _toggleCall() {
+  void _toggleCall() async {
+    // try {
+    //   print('websocket i am here');
+    //   // Listen for the 'transcribe_audio' event
+    Map<String, dynamic> dataToSend = {
+      'audio_data':
+          'test data, working....' // Replace 'audio_data' with whatever key you want
+    };
+
+    print('websocket data -- $dataToSend');
+
+    socket.emit('transcribe_audio', [dataToSend]);
+
+    //   // socket.on('transcribe_audio', (data) {
+    //   //   print('websocket data on -- $dataToSend');
+    //   // });
+    // } catch (error) {
+    //   print('websocket error ------ $error');
+    // }
     setState(() {
       _isCalling = !_isCalling;
 
       if (_isCalling) {
+        _playAudio();
         _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
           setState(() {
             _elapsedTime++;
           });
         });
       } else {
+        _stopAudio();
         _callTimer?.cancel();
 
         setState(() {
